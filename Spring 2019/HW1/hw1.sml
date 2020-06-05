@@ -12,21 +12,21 @@ fun is_older (date_1 : int*int*int, date_2 : int*int*int) =
     else false
 
 fun number_in_month (dates : (int*int*int) list, month : int) = 
-    let fun number_in_month_(acc : int, dates_ : (int*int*int) list) =
+    let fun helper(acc : int, dates_ : (int*int*int) list) =
             if null dates_
             then acc
-            else number_in_month_(acc + (if (#2 (hd dates_)) = month then 1 else 0), tl dates_)
+            else helper(acc + (if (#2 (hd dates_)) = month then 1 else 0), tl dates_)
     in
-        number_in_month_(0, dates)
+        helper(0, dates)
     end
 
 fun number_in_months (dates : (int*int*int) list, months : int list) = 
-    let fun number_in_months_(acc : int, months_ : int list) = 
+    let fun helper(acc : int, months_ : int list) = 
             if null months_
             then acc
-            else number_in_months_(acc + number_in_month(dates, hd months_), tl months_)
+            else helper(acc + number_in_month(dates, hd months_), tl months_)
     in
-        number_in_months_(0, months)
+        helper(0, months)
     end
 
 fun dates_in_month (dates : (int*int*int) list, month : int) =
@@ -57,10 +57,10 @@ fun date_to_string (date : (int*int*int)) =
         get_nth(month_strs, #2 date) ^ "-" ^ Int.toString(#3 date) ^ "-" ^ Int.toString(#1 date)
     end
 
-fun number_before_reaching_sum (sum : int, num_lst : int list) = 
-    if (sum < (hd num_lst))
+fun number_before_reaching_sum (sum : int, nums : int list) = 
+    if (sum < (hd nums))
     then 0
-    else 1 + number_before_reaching_sum(sum - (hd num_lst), tl num_lst)
+    else 1 + number_before_reaching_sum(sum - (hd nums), tl nums)
 
 fun what_month (day_of_year : int) = 
     1 + number_before_reaching_sum(day_of_year, [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
@@ -78,25 +78,25 @@ fun oldest (dates : (int*int*int) list) =
     if (null dates)
     then NONE 
     else
-        let fun oldest_ (dates : (int*int*int) list) = 
+        let fun oldest_notnone (dates : (int*int*int) list) = 
                 if null (tl dates)
                 then hd dates
                 else
-                    let val tl_ans = oldest_(tl dates)
+                    let val tl_ans = oldest_notnone(tl dates)
                     in
                         if is_older(hd dates, tl_ans)
                         then hd dates
                         else tl_ans
                     end
         in
-            SOME (oldest_ dates)
+            SOME (oldest_notnone dates)
         end
 
-fun cumulative_sum (num_lst : int list) = 
-    let fun cum_sum_ (acc : int, nums_ : int list) =
+fun cumulative_sum (nums : int list) = 
+    let fun helper (acc : int, nums_ : int list) =
             if null nums_
             then []
-            else (acc + hd nums_) :: cum_sum_(acc + hd nums_, tl nums_)
+            else (acc + hd nums_) :: helper(acc + hd nums_, tl nums_)
     in
-        cum_sum_(0, num_lst)
+        helper(0, nums)
     end
