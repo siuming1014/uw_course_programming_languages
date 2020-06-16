@@ -69,8 +69,10 @@ val large_incident_reports_list =
       | _ => raise (Fail "expected large_incident_reports to be an array")
 *)
 
+use "parsed_large_police.sml"; 
+
 val large_incident_reports_list =
-    case medium_incident_reports of
+    case large_incident_reports of
         Array js => js
       | _ => raise (Fail "expected large_incident_reports to be an array")
 
@@ -228,9 +230,34 @@ fun concat_with(separator, strs) =
 fun quote_string(s) = "\"" ^ s ^ "\""
 
 fun real_to_string_for_json(x) =
-    if x > 0.0
-    then real_to_string(x)
-    else "-" ^ real_to_string(real_abs(x))
+    if real_is_negative(x)
+    then "-" ^ real_to_string(real_abs(x))
+    else real_to_string(x)
+
+fun json_to_string(j) = 
+    case j of
+        Num x => real_to_string_for_json(x)
+      | String x => quote_string(x)
+      | False => "false"
+      | True => "true"
+      | Null => "null"
+      | Array js =>
+          let fun helper1(acc, js_) = 
+                  case js_ of
+                      [] => List.rev acc
+                    | x::xs => helper1(json_to_string(x)::acc, xs)
+          in
+              "[" ^ concat_with(", ", helper1([], js)) ^ "]"
+          end
+      | Object sjs =>
+          let fun helper2(acc, sjs_) = 
+                  case sjs_ of
+                      [] => List.rev acc
+                    | (s, j)::sjs__ => helper2((quote_string(s) ^ " : " ^ json_to_string(j))::acc, sjs__)
+          in
+              "{" ^ concat_with(", ", helper2([], sjs)) ^ "}"
+          end
+          
 
 (* For CHALLENGE PROBLEMS, see hw2challenge.sml *)
 
