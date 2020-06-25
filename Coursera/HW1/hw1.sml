@@ -58,7 +58,7 @@ fun date_to_string (date : (int*int*int)) =
     end
 
 fun number_before_reaching_sum (sum : int, nums : int list) = 
-    let fun helper(acc, acc_sum, nums_) = 
+    let fun helper(acc : int, acc_sum : int, nums_ : int list) = 
         if (null nums_)
         then acc
         else
