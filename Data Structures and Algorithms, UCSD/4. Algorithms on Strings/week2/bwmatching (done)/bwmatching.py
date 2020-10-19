@@ -1,5 +1,6 @@
 # python3
 import sys
+from typing import Dict, AnyStr, List
 
 
 def PreprocessBWT(bwt):
@@ -14,7 +15,19 @@ def PreprocessBWT(bwt):
         from position 0 to position P inclusive.
   """
   # Implement this function yourself
-  pass
+  starts: Dict[string, int] = dict()
+  occ_counts_before: Dict[string, List[int]] = {c: [] for c in bwt}
+
+  for i, c in enumerate(sorted(bwt)):
+    if c not in starts:
+      starts[c] = i
+  
+  occ_counts_before = {c: [0] for c in bwt}
+  for c in bwt:
+    for c2 in occ_counts_before:
+      occ_counts_before[c2].append(occ_counts_before[c2][-1] + (1 if c == c2 else 0))
+
+  return starts, occ_counts_before
 
 
 def CountOccurrences(pattern, bwt, starts, occ_counts_before):
@@ -24,10 +37,25 @@ def CountOccurrences(pattern, bwt, starts, occ_counts_before):
   information we get from the preprocessing stage - starts and occ_counts_before.
   """
   # Implement this function yourself
+  # from pprint import pprint
+  # pprint(starts)
+  # pprint(occ_counts_before)
+
+  top = 0
+  bottom = len(bwt) - 1
+  while top <= bottom:
+    if len(pattern):
+      symbol = pattern[-1]
+      pattern = pattern[:-1]
+      if symbol in starts:
+        top = starts[symbol] + occ_counts_before[symbol][top]
+        bottom = starts[symbol] + occ_counts_before[symbol][bottom + 1] - 1
+      else:
+        return 0
+    else:
+      return bottom - top + 1
   return 0
      
-
-
 if __name__ == '__main__':
   bwt = sys.stdin.readline().strip()
   pattern_count = int(sys.stdin.readline().strip())
